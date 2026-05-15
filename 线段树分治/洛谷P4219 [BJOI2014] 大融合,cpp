@@ -1,0 +1,179 @@
+#include<bits/stdc++.h>
+using namespace std;
+
+struct Node{
+    int u,v,t;
+};
+
+int root(int f,vector<int>&father){
+    while(f!=father[f]) f=father[f];
+    return f;
+}
+
+void unio(int u,int v,vector<int>&father,vector<int>&sz,vector<pair<int,int>>&s,int&cur){
+    if(sz[u]>sz[v]){
+        father[v]=u;
+        sz[u]+=sz[v];
+        s[cur++]={u,v};
+    }
+    else{
+        father[u]=v;
+        sz[v]+=sz[u];
+        s[cur++]={v,u};
+    }
+}
+
+void undo(vector<int>&father,vector<int>&sz,vector<pair<int,int>>&s,int&cur){
+    int f=s[cur-1].first;
+    int son=s[cur-1].second;
+    cur--;
+    father[son]=son;
+    sz[f]-=sz[son];
+}
+
+void addedge(int u,int v,int lt,int rt,int l,int r,int nums,vector<vector<pair<int,int>>>&tree){
+    if(lt>rt) return;
+
+    if(lt<=l&&r<=rt){
+        tree[nums].push_back({u,v});
+        return;
+    }
+
+    int mid=l+(r-l)/2;
+
+    if(lt<=mid){
+        addedge(u,v,lt,rt,l,mid,2*nums,tree);
+    }
+
+    if(rt>mid){
+        addedge(u,v,lt,rt,mid+1,r,2*nums+1,tree);
+    }
+}
+
+void dfs(int l,int r,int nums,
+         vector<vector<pair<int,int>>>&tree,
+         vector<int>&father,
+         vector<int>&sz,
+         vector<pair<int,int>>&s,
+         int&cur,
+         vector<char>&op,
+         vector<int>&x,
+         vector<int>&y){
+
+    int cnt=0;
+
+    for(auto &p:tree[nums]){
+        int u=p.first;
+        int v=p.second;
+
+        int fu=root(u,father);
+        int fv=root(v,father);
+
+        if(fu==fv){
+            continue;
+        }
+
+        unio(fu,fv,father,sz,s,cur);
+        cnt++;
+    }
+
+    if(l==r){
+        if(op[l]=='Q'){
+            long long a=sz[root(x[l],father)];
+            long long b=sz[root(y[l],father)];
+            cout<<a*b<<'\n';
+        }
+
+        for(int i=0;i<cnt;i++){
+            undo(father,sz,s,cur);
+        }
+
+        return;
+    }
+
+    int mid=l+(r-l)/2;
+
+    dfs(l,mid,2*nums,tree,father,sz,s,cur,op,x,y);
+    dfs(mid+1,r,2*nums+1,tree,father,sz,s,cur,op,x,y);
+
+    for(int i=0;i<cnt;i++){
+        undo(father,sz,s,cur);
+    }
+}
+
+int main(){
+    ios::sync_with_stdio(false);
+    cin.tie(nullptr);
+
+    int n,q;
+    cin>>n>>q;
+
+    vector<char>op(q+1);
+    vector<int>x(q+1),y(q+1);
+    vector<Node>edge(q+1);
+
+    for(int i=1;i<=q;i++){
+        cin>>op[i]>>x[i]>>y[i];
+
+        if(x[i]>y[i]) swap(x[i],y[i]);
+
+        edge[i].u=x[i];
+        edge[i].v=y[i];
+        edge[i].t=i;
+    }
+
+    sort(edge.begin()+1,edge.end(),[](const Node&a,const Node&b){
+        if(a.u!=b.u) return a.u<b.u;
+        if(a.v!=b.v) return a.v<b.v;
+        return a.t<b.t;
+    });
+
+    vector<vector<pair<int,int>>>tree(4*q+5);
+
+    int l=1;
+
+    while(l<=q){
+        int r=l;
+
+        while(r<q&&edge[r+1].u==edge[l].u&&edge[r+1].v==edge[l].v){
+            r++;
+        }
+
+        for(int i=l+1;i<=r;i++){
+            int pre;
+
+            if(i-1==l){
+                pre=edge[i-1].t;
+            }
+            else{
+                pre=edge[i-1].t+1;
+            }
+
+            addedge(edge[i].u,edge[i].v,pre,edge[i].t-1,1,q,1,tree);
+        }
+
+        if(l==r){
+            addedge(edge[r].u,edge[r].v,edge[r].t,q,1,q,1,tree);
+        }
+        else{
+            addedge(edge[r].u,edge[r].v,edge[r].t+1,q,1,q,1,tree);
+        }
+
+        l=r+1;
+    }
+
+    vector<int>father(n+1);
+    vector<int>sz(n+1);
+    vector<pair<int,int>>s(q+5);
+
+    for(int i=1;i<=n;i++){
+        father[i]=i;
+        sz[i]=1;
+    }
+
+    int cur=0;
+
+    dfs(1,q,1,tree,father,sz,s,cur,op,x,y);
+
+    return 0;
+}
