@@ -11,3 +11,9 @@ frames/*.jpg
 # 本地环境变量文件
 .env
 .env.*
+
+# 比赛或 TRAE 本地提交材料
+competition_demo/
+
+# 包含 Session ID 的本地提交文案
+elder_companion_demo/submission_post.md
