@@ -1,6 +1,6 @@
 #include <bits/stdc++.h>
 #include <cstdlib>
-
+#include "speech_output.h"
 #include "beta_core.h"
 #include "logger.h"
 #include "parser.h"
@@ -102,9 +102,14 @@ int main()
         string final_response =
             parse_result(core_result);
 
-        cout << endl;
+               cout << endl;
         cout << "===== 系统反馈 =====" << endl;
-        cout << final_response << endl;
+
+        if (!output_companion_reply(final_response))
+        {
+            cerr << "错误：陪伴回复输出失败。" << endl;
+        }
+
         cout << "====================" << endl;
         cout << endl;
 
