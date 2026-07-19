@@ -7,7 +7,7 @@
 #include "preprocess.h"
 #include "camera_capture.h"
 #include "vlm_client.h"
-
+#include "speech_input.h"
 using namespace std;
 
 int main()
@@ -47,7 +47,7 @@ int main()
 
         string user_input;
 
-        if (!getline(cin, user_input))
+        if (!read_user_input(user_input))
         {
             break;
         }
