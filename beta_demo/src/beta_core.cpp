@@ -123,7 +123,26 @@ bool is_valid_intent(const string& intent)
         || intent == "EMOTION"
         || intent == "CHAT";
 }
-
+bool contains_danger_signal(
+    const string& processed_input)
+{
+    return processed_input.find("胸痛") != string::npos
+        || processed_input.find("胸口疼") != string::npos
+        || processed_input.find("呼吸困难") != string::npos
+        || processed_input.find("喘不上气") != string::npos
+        || processed_input.find("摔倒") != string::npos
+        || processed_input.find("跌倒") != string::npos
+        || processed_input.find("晕倒") != string::npos
+        || processed_input.find("大量出血") != string::npos;
+}
+bool contains_self_harm_signal(
+    const string& processed_input)
+{
+    return processed_input.find("不想活") != string::npos
+        || processed_input.find("轻生") != string::npos
+        || processed_input.find("自伤") != string::npos
+        || processed_input.find("自杀") != string::npos;
+}
 }
 
 bool normalize_vlm_output(
@@ -256,7 +275,30 @@ string build_mock_result(
               "可以告诉我您现在想聊什么，"
               "或者需要什么帮助。";
     }
+               if (contains_self_harm_signal(processed_input))
+    {
+        return result_prefix
+            + "STATE:CONFUSED; "
+              "INTENT:ASK_HELP; "
+              "ADVICE:听到您这么说，我很担心您的安全。"
+              "请先不要独自待着，"
+              "马上联系身边可信任的家人、朋友或照护人员，"
+              "并联系当地紧急服务或专业人员。"
+              "请先远离可能伤害自己的物品，"
+              "等待他人陪伴和帮助。";
+    }
 
+    if (contains_danger_signal(processed_input))
+    {
+        return result_prefix
+            + "STATE:CONFUSED; "
+              "INTENT:ASK_HELP; "
+              "ADVICE:这可能是紧急情况。"
+              "请马上联系身边家人或当地急救服务，"
+              "不要独自处理。"
+              "如果已经摔倒、呼吸困难或明显受伤，"
+              "请不要勉强活动，等待他人帮助。";
+    }
     if (processed_input.find("不会")
             != string::npos
         || processed_input.find("不懂")
