@@ -250,10 +250,74 @@ string build_mock_result(
               "我会陪您一起梳理。";
     }
 
-    if (processed_input.find("困")
-            != string::npos
-        || processed_input.find("累")
-            != string::npos)
+    bool is_tired =
+        processed_input.find("困") != string::npos
+        || processed_input.find("累") != string::npos
+        || processed_input.find("疲惫") != string::npos
+        || processed_input.find("乏力") != string::npos;
+
+    bool wants_opera =
+        processed_input.find("戏曲") != string::npos
+        || processed_input.find("京剧") != string::npos
+        || processed_input.find("评剧") != string::npos
+        || processed_input.find("豫剧") != string::npos
+        || processed_input.find("越剧") != string::npos
+        || processed_input.find("黄梅戏") != string::npos
+        || processed_input.find("昆曲") != string::npos;
+
+    bool wants_family_memory =
+        processed_input.find("回忆") != string::npos
+        || processed_input.find("往事") != string::npos
+        || processed_input.find("以前") != string::npos
+        || processed_input.find("过去") != string::npos
+        || processed_input.find("小时候") != string::npos
+        || processed_input.find("年轻时") != string::npos
+        || processed_input.find("当年") != string::npos
+        || processed_input.find("从前") != string::npos;
+
+    if (wants_opera)
+    {
+        if (is_tired)
+        {
+            return result_prefix
+                + "STATE:TIRED; "
+                  "INTENT:CHAT; "
+                  "ADVICE:听起来您今天有些累，"
+                  "可以先坐稳休息一会儿。"
+                  "您想听京剧、评剧、豫剧、越剧、"
+                  "黄梅戏还是昆曲？";
+        }
+
+        return result_prefix
+            + "STATE:NORMAL; "
+              "INTENT:CHAT; "
+              "ADVICE:好呀，我们可以聊聊戏曲。"
+              "您想听京剧、评剧、豫剧、越剧、"
+              "黄梅戏还是昆曲？";
+    }
+
+    if (wants_family_memory)
+    {
+        if (is_tired)
+        {
+            return result_prefix
+                + "STATE:TIRED; "
+                  "INTENT:CHAT; "
+                  "ADVICE:听起来您现在有些累，"
+                  "可以先慢慢休息。"
+                  "等舒服一些，再和我说说"
+                  "以前与家人相处的难忘往事。";
+        }
+
+        return result_prefix
+            + "STATE:NORMAL; "
+              "INTENT:CHAT; "
+              "ADVICE:我愿意听您慢慢讲。"
+              "您可以从一件和家人有关、"
+              "让您印象最深的往事说起。";
+    }
+
+    if (is_tired)
     {
         return result_prefix
             + "STATE:TIRED; "
