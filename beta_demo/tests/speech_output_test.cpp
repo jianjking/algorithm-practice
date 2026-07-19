@@ -20,6 +20,11 @@ int main()
     total++;
 
     if (output_companion_reply(
+            "视觉输入：FAILED\n"
+            "回复来源：MOCK\n"
+            "情绪状态：NORMAL\n"
+            "陪伴需求：CHAT\n"
+            "陪伴回复：测试回复：我在这里陪您慢慢聊。",
             "测试回复：我在这里陪您慢慢聊。"))
     {
         passed++;

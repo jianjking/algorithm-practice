@@ -100,15 +100,20 @@ int main()
             );
 
         string final_response =
-            parse_result(core_result);
+    parse_result(core_result);
 
-               cout << endl;
-        cout << "===== 系统反馈 =====" << endl;
+string companion_reply =
+    get_field(core_result, "ADVICE");
 
-        if (!output_companion_reply(final_response))
-        {
-            cerr << "错误：陪伴回复输出失败。" << endl;
-        }
+cout << endl;
+cout << "===== 系统反馈 =====" << endl;
+
+if (!output_companion_reply(
+        final_response,
+        companion_reply))
+{
+    cerr << "错误：陪伴回复输出失败。" << endl;
+}
 
         cout << "====================" << endl;
         cout << endl;

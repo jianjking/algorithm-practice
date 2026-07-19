@@ -107,22 +107,38 @@ static bool speak_reply_with_windows_tts(
 }
 
 bool output_companion_reply(
-    const string& reply)
+    const string& display_reply,
+    const string& spoken_reply)
 {
-    if (reply.empty())
+    if (display_reply.empty())
     {
         return false;
     }
 
-    cout << reply << endl;
+    cout << display_reply << endl;
 
     if (!cout.good())
     {
         return false;
     }
 
+    if (spoken_reply.empty())
+    {
+        cerr
+            << "[WARNING] TTS content is empty. "
+            << "Text output is still available."
+            << endl;
+
+        return true;
+    }
+
+    cerr << "[DEBUG-TTS] 实际传给语音的内容：<<<"
+         << spoken_reply
+         << ">>>" << endl;
+
     const bool tts_success =
-        speak_reply_with_windows_tts(reply);
+        speak_reply_with_windows_tts(
+            spoken_reply);
 
     if (!tts_success)
     {
@@ -133,4 +149,12 @@ bool output_companion_reply(
     }
 
     return true;
+}
+
+bool output_companion_reply(
+    const string& reply)
+{
+    return output_companion_reply(
+        reply,
+        reply);
 }
