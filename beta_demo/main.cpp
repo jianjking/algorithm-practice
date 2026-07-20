@@ -1,5 +1,6 @@
 #include <bits/stdc++.h>
 #include <cstdlib>
+
 #include "speech_output.h"
 #include "beta_core.h"
 #include "logger.h"
@@ -8,6 +9,8 @@
 #include "camera_capture.h"
 #include "vlm_client.h"
 #include "speech_input.h"
+#include "conversation_memory.h"
+
 using namespace std;
 
 int main()
@@ -40,6 +43,8 @@ int main()
     );
 
     int frame_index = 1;
+
+    deque<ConversationTurn> conversation_memory;
 
     while (true)
     {
@@ -92,28 +97,43 @@ int main()
         string processed_input =
             preprocess(user_input);
 
+        string conversation_context =
+            build_conversation_context(
+                conversation_memory
+            );
+
         string core_result =
             call_beta_core(
                 processed_input,
                 image_path,
-                vlm_client
+                vlm_client,
+                conversation_context
             );
 
         string final_response =
-    parse_result(core_result);
+            parse_result(core_result);
 
-string companion_reply =
-    get_field(core_result, "ADVICE");
+        string companion_reply =
+            get_field(core_result, "ADVICE");
 
-cout << endl;
-cout << "===== 系统反馈 =====" << endl;
+        if (!companion_reply.empty())
+        {
+            add_conversation_turn(
+                conversation_memory,
+                processed_input,
+                companion_reply
+            );
+        }
 
-if (!output_companion_reply(
-        final_response,
-        companion_reply))
-{
-    cerr << "错误：陪伴回复输出失败。" << endl;
-}
+        cout << endl;
+        cout << "===== 系统反馈 =====" << endl;
+
+        if (!output_companion_reply(
+                final_response,
+                companion_reply))
+        {
+            cerr << "错误：陪伴回复输出失败。" << endl;
+        }
 
         cout << "====================" << endl;
         cout << endl;

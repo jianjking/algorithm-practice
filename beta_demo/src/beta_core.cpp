@@ -195,7 +195,8 @@ bool normalize_vlm_output(
 }
 
 string build_vlm_prompt(
-    const string& processed_input)
+    const string& processed_input,
+    const string& conversation_context)
 {
     string prompt =
         "你是一个基于传统文化IP的老年多模态陪伴助手。"
@@ -242,8 +243,17 @@ string build_vlm_prompt(
         "INTENT只能是NONE、ASK_HELP、EMOTION、CHAT之一。\n"
         "ADVICE中不能出现英文分号。\n"
         "不要输出Markdown、代码块、解释或其他字段。\n"
-        "老年用户输入：";
+        "最近对话历史只用于理解指代和承接。"
+        "不要机械地把历史状态当成本轮状态，"
+        "STATE和INTENT应优先根据当前输入和当前图片判断。\n";
 
+    if (!conversation_context.empty())
+    {
+        prompt += conversation_context;
+        prompt += '\n';
+    }
+
+    prompt += "当前老年用户输入：";
     prompt += processed_input;
 
     return prompt;
@@ -406,7 +416,8 @@ string build_mock_result(
 string call_beta_core(
     const string& processed_input,
     const string& image_path,
-    VlmClient& vlm_client)
+    VlmClient& vlm_client,
+    const string& conversation_context)
 {
     if (image_path.empty())
     {
@@ -418,7 +429,10 @@ string call_beta_core(
     }
 
     string vlm_prompt =
-        build_vlm_prompt(processed_input);
+        build_vlm_prompt(
+            processed_input,
+            conversation_context
+        );
 
     VlmResult vlm_result =
         vlm_client.analyze(
