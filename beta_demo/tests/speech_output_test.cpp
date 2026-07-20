@@ -14,6 +14,22 @@ int main()
     SetConsoleOutputCP(CP_UTF8);
 #endif
 
+    if (getenv("TTS_ENABLED") == nullptr)
+    {
+#ifdef _WIN32
+        if (_putenv_s("TTS_ENABLED", "0") != 0)
+#else
+        if (setenv("TTS_ENABLED", "0", 1) != 0)
+#endif
+        {
+            cerr
+                << "设置测试用 TTS_ENABLED=0 失败。"
+                << endl;
+
+            return 1;
+        }
+    }
+
     int passed = 0;
     int total = 0;
 
