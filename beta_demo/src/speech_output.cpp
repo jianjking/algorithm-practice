@@ -26,10 +26,19 @@ static bool is_tts_enabled()
         tts_enabled_value;
 
     if (configured_value == "1")
-    {
-        return true;
-    }
+{
+#ifdef _WIN32
+    return true;
+#else
+    cerr
+        << "[WARNING] TTS playback is unavailable "
+        << "on this platform. "
+        << "Text output is still available."
+        << endl;
 
+    return false;
+#endif
+}
     if (configured_value == "0")
     {
         return false;
