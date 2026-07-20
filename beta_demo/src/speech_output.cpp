@@ -8,6 +8,42 @@
 
 using namespace std;
 
+static bool is_tts_enabled()
+{
+    const char* tts_enabled_value =
+        getenv("TTS_ENABLED");
+
+    if (tts_enabled_value == nullptr)
+    {
+#ifdef _WIN32
+        return true;
+#else
+        return false;
+#endif
+    }
+
+    const string configured_value =
+        tts_enabled_value;
+
+    if (configured_value == "1")
+    {
+        return true;
+    }
+
+    if (configured_value == "0")
+    {
+        return false;
+    }
+
+    cerr
+        << "[WARNING] Invalid TTS_ENABLED value: "
+        << configured_value
+        << ". TTS playback is disabled."
+        << endl;
+
+    return false;
+}
+
 static bool speak_reply_with_windows_tts(
     const string& reply)
 {
@@ -120,6 +156,11 @@ bool output_companion_reply(
     if (!cout.good())
     {
         return false;
+    }
+
+    if (!is_tts_enabled())
+    {
+        return true;
     }
 
     if (spoken_reply.empty())
